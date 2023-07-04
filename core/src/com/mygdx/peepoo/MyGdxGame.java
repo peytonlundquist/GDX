@@ -3,10 +3,9 @@ package com.mygdx.peepoo;
 import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
+import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.graphics.g2d.Sprite;
-import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.badlogic.gdx.graphics.g2d.TextureAtlas;
+import com.badlogic.gdx.graphics.g2d.*;
 import com.badlogic.gdx.utils.ScreenUtils;
 import com.mygdx.peepoo.tiles.Decor;
 import com.mygdx.peepoo.tiles.Door;
@@ -28,15 +27,16 @@ public class MyGdxGame extends ApplicationAdapter {
 	Player player;
 	Map map;
 	Map basicMap;
-
 	TextureAtlas textureAtlas;
-	Sprite dirt;
+	TextureAtlas waterAtlas;
+	float stateTime;
 
 	@Override
 	public void create () {
 		batch = new SpriteBatch();
+		waterAtlas = new TextureAtlas("water.txt");
 		textureAtlas = new TextureAtlas("sprites.txt");
-		dirt = textureAtlas.createSprite("dirt");
+		stateTime = 0f;
 
 
 		/* Make player */
@@ -61,8 +61,13 @@ public class MyGdxGame extends ApplicationAdapter {
 	private void renderMap(Map map){
 		for(int i = 0; i < map.width; i++){
 			for(int j = 0; j < map.height; j++){
-				map.tiles[i][j].sprite.setPosition((i * step) + (mapX*step), (j * step) + (mapY*step));
-				map.tiles[i][j].sprite.draw(batch);
+				if(map.tiles[i][j].getAnimation() != null){
+					TextureRegion currentFrame = map.tiles[i][j].getAnimation().getKeyFrame(stateTime, true);
+					batch.draw(currentFrame, (i * step) + (mapX*step), (j * step) + (mapY*step)); // Draw current frame at (50, 50)
+				}else{
+					map.tiles[i][j].sprite.setPosition((i * step) + (mapX*step), (j * step) + (mapY*step));
+					map.tiles[i][j].sprite.draw(batch);
+				}
 			}
 		}
 	}
@@ -75,6 +80,8 @@ public class MyGdxGame extends ApplicationAdapter {
 	@Override
 	public void render () {
 		ScreenUtils.clear(0, 0, 0, 0);
+		//Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT); // Clear screen
+
 		batch.begin();
 		long endTime = System.currentTimeMillis();
 
@@ -144,11 +151,15 @@ public class MyGdxGame extends ApplicationAdapter {
 		}
 
 		batch.draw(player.getCurrentTexture(), player.getX(), player.getY());
+
+		stateTime += Gdx.graphics.getDeltaTime(); // Accumulate elapsed animation time
 		batch.end();
 	}
 
 	@Override
 	public void dispose () {
 		batch.dispose();
+//		walkSheet.dispose();
+		textureAtlas.dispose();
 	}
 }
