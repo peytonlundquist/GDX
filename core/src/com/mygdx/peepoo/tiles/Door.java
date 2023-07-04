@@ -30,6 +30,12 @@ public class Door extends Tile {
         open = false;
     }
 
+    public Door(TextureAtlas textureAtlas){
+        walkable = true;
+        sprite = textureAtlas.createSprite("door");
+        open = true;
+    }
+
     public void openDoor(){
         //texture = new Texture("tiles/doorOpen.png");
         open = true;

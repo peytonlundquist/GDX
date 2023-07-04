@@ -3,12 +3,13 @@ package com.mygdx.peepoo;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.mygdx.peepoo.tiles.*;
 
+import java.util.ArrayList;
 import java.util.Random;
 
 public class Maps {
     public static Map getBasicMap(TextureAtlas textureAtlas){
-        int oceanBorderSize = 8;
-        int beachBorderSize = 4;
+        int oceanBorderSize = 10;
+        int beachBorderSize = 5;
         int size = 50;
         Map map = new Map(size, size);
         Random random = new Random();
@@ -17,9 +18,13 @@ public class Maps {
         SandOceanEdge sandOceanEdge = new SandOceanEdge(textureAtlas);
         Sand sand = new Sand(textureAtlas);
         Dirt dirt = new Dirt(textureAtlas);
-        Grass grass = new Grass(textureAtlas);
 
-
+        ArrayList<Grass> grasses = new ArrayList<Grass>();
+        grasses.add(new Grass(textureAtlas, 0));
+        grasses.add(new Grass(textureAtlas, 1));
+        grasses.add(new Grass(textureAtlas, 2));
+        grasses.add(new Grass(textureAtlas, 3));
+        grasses.add(new Grass(textureAtlas, 4));
 
         for(int i = 0; i < size; i++){
             for(int j = 0; j < size; j++){
@@ -50,7 +55,7 @@ public class Maps {
                     if(random.nextInt(0, 4) == 1){
                         map.tiles[i][j] = dirt;
                     }else{
-                        map.tiles[i][j] = grass;
+                        map.tiles[i][j] = grasses.get(random.nextInt(0, 4));
                     }
                 }
             }
@@ -71,7 +76,7 @@ public class Maps {
             }
         }
 
-        map.tiles[x + 4][y] = new Door(getHome(textureAtlas,15, 15), textureAtlas);
+        map.tiles[x + 4][y] = new Door(getHome(textureAtlas,x, y), textureAtlas);
         map.tiles[x + 4][y + 1] = empty;
     }
 
@@ -93,6 +98,8 @@ public class Maps {
                 }
             }
         }
+        map.tiles[x + 4][y] = new Door(textureAtlas);
+        //door.openDoor();
         return map;
     }
 }

@@ -173,7 +173,6 @@
         </struct>
         <key>individualSpriteSettings</key>
         <map type="IndividualSpriteSettingsMap">
-            <key type="filename">assets/tiles/blur.png</key>
             <key type="filename">assets/tiles/dirt.png</key>
             <key type="filename">assets/tiles/empty.png</key>
             <key type="filename">assets/tiles/grass.png</key>
@@ -211,6 +210,24 @@
                 <key>scale9FromFile</key>
                 <false/>
             </struct>
+            <key type="filename">raw-assets/grass_rock.png</key>
+            <key type="filename">raw-assets/grass_roses.png</key>
+            <key type="filename">raw-assets/grass_three_sunflower.png</key>
+            <key type="filename">raw-assets/grass_two_sunflower.png</key>
+            <struct type="IndividualSpriteSettings">
+                <key>pivotPoint</key>
+                <point_f>0.5,0.5</point_f>
+                <key>spriteScale</key>
+                <double>1</double>
+                <key>scale9Enabled</key>
+                <false/>
+                <key>scale9Borders</key>
+                <rect>8,8,16,16</rect>
+                <key>scale9Paddings</key>
+                <rect>8,8,16,16</rect>
+                <key>scale9FromFile</key>
+                <false/>
+            </struct>
         </map>
         <key>fileLists</key>
         <map type="SpriteSheetMap">
@@ -218,7 +235,6 @@
             <struct type="SpriteSheet">
                 <key>files</key>
                 <array>
-                    <filename>assets/tiles/blur.png</filename>
                     <filename>assets/tiles/dirt.png</filename>
                     <filename>assets/tiles/door.png</filename>
                     <filename>assets/tiles/doorOpen.png</filename>
@@ -228,6 +244,10 @@
                     <filename>assets/tiles/sand.png</filename>
                     <filename>assets/tiles/sandOceanEdge.png</filename>
                     <filename>assets/tiles/water.png</filename>
+                    <filename>raw-assets/grass_rock.png</filename>
+                    <filename>raw-assets/grass_roses.png</filename>
+                    <filename>raw-assets/grass_three_sunflower.png</filename>
+                    <filename>raw-assets/grass_two_sunflower.png</filename>
                 </array>
             </struct>
         </map>

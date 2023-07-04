@@ -1,5 +1,5 @@
 sprites.png
-size: 32, 352
+size: 32, 480
 format: RGBA8888
 filter: Linear,Linear
 repeat: none
@@ -38,30 +38,58 @@ grass
   orig: 32, 32
   offset: 0, 0
   index: -1
-log
+grass_rock
   rotate: false
   xy: 0, 224
   size: 32, 32
   orig: 32, 32
   offset: 0, 0
   index: -1
-sand
+grass_roses
   rotate: false
   xy: 0, 256
   size: 32, 32
   orig: 32, 32
   offset: 0, 0
   index: -1
-sandOceanEdge
+grass_three_sunflower
   rotate: false
   xy: 0, 288
   size: 32, 32
   orig: 32, 32
   offset: 0, 0
   index: -1
-water
+grass_two_sunflower
   rotate: false
   xy: 0, 320
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: -1
+log
+  rotate: false
+  xy: 0, 352
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: -1
+sand
+  rotate: false
+  xy: 0, 384
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: -1
+sandOceanEdge
+  rotate: false
+  xy: 0, 416
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: -1
+water
+  rotate: false
+  xy: 0, 448
   size: 32, 32
   orig: 32, 32
   offset: 0, 0
