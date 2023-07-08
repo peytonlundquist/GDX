@@ -8,6 +8,8 @@ import java.util.Random;
 
 public class Maps {
     public static Map getBasicMap(TextureAtlas textureAtlas){
+
+
         int oceanBorderSize = 10;
         int beachBorderSize = 5;
         int size = 50;
@@ -71,18 +73,23 @@ public class Maps {
 
 
         for(int i = 0; i < 9; i++){
-            for(int j = 0; j < 4; j++){
+            for(int j = 0; j < 3; j++){
                 map.tiles[x + i][y + j] = new Log(textureAtlas);
             }
         }
 
-        map.tiles[x + 4][y] = new Door(getHome(textureAtlas,x, y), textureAtlas);
+        for(int i = 0; i < 9; i++){
+            map.tiles[x + i][y + 3] = new LogRoof(textureAtlas);
+            map.tiles[x + i][y + 4] = new LogRoof(textureAtlas);
+        }
+        map.tiles[x + 4][y] = new Door(getHome(textureAtlas, map, x, y), textureAtlas);
         map.tiles[x + 4][y + 1] = empty;
     }
 
-    public static Map getHome(TextureAtlas textureAtlas, int x, int y){
+    public static Map getHome(TextureAtlas textureAtlas, Map outside, int x, int y){
         Empty empty = new Empty(textureAtlas);
         Dirt dirt = new Dirt(textureAtlas);
+        Log log = new Log(textureAtlas);
         int size = 50;
         Map map = new Map(size, size);
 
@@ -90,16 +97,19 @@ public class Maps {
             for (int j = 0; j < size; j++) {
 
                 /* Ocean */
-                if ((i < x || j < y) || (i > x + 10 || j > y + 7)) {
+                if ((i < x || j < y) || (i > x + 8 || j > y + 6)) {
                     map.tiles[i][j] = empty;
 
                 } else {
-                    map.tiles[i][j] = dirt;
+                    if(j > y + 3){
+                        map.tiles[i][j] = log;
+                    }else{
+                        map.tiles[i][j] = dirt;
+                    }
                 }
             }
         }
-        map.tiles[x + 4][y] = new Door(textureAtlas);
-        //door.openDoor();
+        map.tiles[x + 4][y - 1] = new DoorMat(outside, textureAtlas);
         return map;
     }
 }

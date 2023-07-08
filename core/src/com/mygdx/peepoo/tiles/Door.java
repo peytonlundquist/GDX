@@ -12,7 +12,6 @@ public class Door extends Tile {
     }
 
     boolean open;
-    Map outside;
     Map inside;
 
     public Map getInside() {

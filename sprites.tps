@@ -210,6 +210,8 @@
                 <key>scale9FromFile</key>
                 <false/>
             </struct>
+            <key type="filename">assets/tiles/logRoof.png</key>
+            <key type="filename">raw-assets/doorMat.png</key>
             <key type="filename">raw-assets/grass_rock.png</key>
             <key type="filename">raw-assets/grass_roses.png</key>
             <key type="filename">raw-assets/grass_three_sunflower.png</key>
@@ -248,6 +250,8 @@
                     <filename>raw-assets/grass_roses.png</filename>
                     <filename>raw-assets/grass_three_sunflower.png</filename>
                     <filename>raw-assets/grass_two_sunflower.png</filename>
+                    <filename>raw-assets/doorMat.png</filename>
+                    <filename>assets/tiles/logRoof.png</filename>
                 </array>
             </struct>
         </map>

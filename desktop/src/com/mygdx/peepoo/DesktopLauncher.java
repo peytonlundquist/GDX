@@ -11,6 +11,7 @@ public class DesktopLauncher {
 		config.setForegroundFPS(60);
 		config.setTitle("peepoo");
 		config.setWindowedMode(640, 640);
+//		config.setWindowedMode(1080, 720);
 		config.setResizable(false);
 		new Lwjgl3Application(new MyGdxGame(), config);
 	}

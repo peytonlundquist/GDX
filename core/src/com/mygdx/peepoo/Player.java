@@ -25,37 +25,20 @@ public class Player {
 
     Texture currentTexture;
 
-
     public Texture getRightFacing() {
         return rightFacing;
-    }
-
-    public void setRightFacing(Texture rightFacing) {
-        this.rightFacing = rightFacing;
     }
 
     public Texture getLeftFacing() {
         return leftFacing;
     }
 
-    public void setLeftFacing(Texture leftFacing) {
-        this.leftFacing = leftFacing;
-    }
-
     public Texture getFrontFacing() {
         return frontFacing;
     }
 
-    public void setFrontFacing(Texture frontFacing) {
-        this.frontFacing = frontFacing;
-    }
-
     public Texture getBackFacing() {
         return backFacing;
-    }
-
-    public void setBackFacing(Texture backFacing) {
-        this.backFacing = backFacing;
     }
 
     Texture rightFacing, leftFacing, frontFacing, backFacing;
@@ -65,8 +48,6 @@ public class Player {
         this.leftFacing = leftFacing;
         this.frontFacing = frontFacing;
         this.backFacing = backFacing;
-//        x = 270;
-//        y = 357;
     }
 
     public int getX() {
