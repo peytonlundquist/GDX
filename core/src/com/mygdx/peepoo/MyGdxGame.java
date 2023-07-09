@@ -7,11 +7,12 @@ import com.badlogic.gdx.graphics.*;
 import com.badlogic.gdx.graphics.g2d.*;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Stage;
-import com.badlogic.gdx.scenes.scene2d.ui.Skin;
-import com.badlogic.gdx.scenes.scene2d.ui.Table;
-import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
+import com.badlogic.gdx.scenes.scene2d.ui.*;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
+import com.badlogic.gdx.scenes.scene2d.utils.Drawable;
+import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.utils.ScreenUtils;
+import com.mygdx.peepoo.tiles.Blur;
 import com.mygdx.peepoo.tiles.Door;
 import com.mygdx.peepoo.tiles.DoorMat;
 
@@ -22,10 +23,13 @@ public class MyGdxGame extends ApplicationAdapter {
 		batch = new SpriteBatch();
 		waterAtlas = new TextureAtlas("water.txt");
 		textureAtlas = new TextureAtlas("sprites.txt");
+		textAtlas = new TextureAtlas("text.txt");
 		stateTime = 0f;
 
 		/* Create UI */
+		createInventory();
 		createUI();
+
 
 		/* Make player */
 		player = new Player(new Texture("player/pumkinRight.png"),
@@ -47,6 +51,7 @@ public class MyGdxGame extends ApplicationAdapter {
 	}
 
 	boolean beginGame = false;
+	boolean loadInventory = false;
 
 	@Override
 	public void render () {
@@ -56,6 +61,9 @@ public class MyGdxGame extends ApplicationAdapter {
 
 		if(beginGame){
 			renderGame();
+			if(loadInventory){
+				renderInventory();
+			}
 		}else{
 			renderUI();
 		}
@@ -68,7 +76,9 @@ public class MyGdxGame extends ApplicationAdapter {
 		batch.dispose();
 //		walkSheet.dispose();
 		textureAtlas.dispose();
-		stage.dispose();
+		waterAtlas.dispose();
+		textAtlas.dispose();
+		menu.dispose();
 	}
 
 	public void renderGame(){
@@ -81,6 +91,9 @@ public class MyGdxGame extends ApplicationAdapter {
 		}else{
 			renderMap(map);
 		}
+
+		boolean keyI = Gdx.input.isKeyJustPressed(Input.Keys.I);
+
 
 		/* Get Input */
 		boolean keyA = Gdx.input.isKeyJustPressed(Input.Keys.A);
@@ -97,7 +110,7 @@ public class MyGdxGame extends ApplicationAdapter {
 		if((keyAPressed && millisDrag + startTime < endTime) || keyA){
 			startTime = System.currentTimeMillis();
 			player.setCurrentTexture(player.getLeftFacing());
-			if(map.tiles[playerX][playerY].getWalkable()){
+			if(map.tiles[playerX - 1][playerY].getWalkable()){
 				mapX = mapX + 1;
 				playerX--;
 				//batch.draw(player.getRightFacing(), player.getX(), player.getY());
@@ -136,6 +149,12 @@ public class MyGdxGame extends ApplicationAdapter {
 				System.out.println(map.tiles[playerX][playerY]);
 			}
 		}
+
+		if(keyI && loadInventory == false){
+			loadInventory = true;
+		}else if (keyI && loadInventory == true){
+			loadInventory = false;
+		}
 		//rayHandler.updateAndRender();
 
 		batch.draw(player.getCurrentTexture(), player.getX(), player.getY());
@@ -157,20 +176,38 @@ public class MyGdxGame extends ApplicationAdapter {
 	}
 
 	public void renderUI(){
-		stage.act(Math.min(Gdx.graphics.getDeltaTime(), 1 / 30f));
-		stage.draw();
+		Gdx.input.setInputProcessor(menu);
+		menu.act(Math.min(Gdx.graphics.getDeltaTime(), 1 / 30f));
+		menu.draw();
 		Sprite sprite = new Sprite(new Texture("player/pumkinFront.png"));
 		sprite.setPosition(400, 400);
 		sprite.draw(batch);
 	}
 
+	public void renderInventory(){
+
+		Blur blur = new Blur(textureAtlas);
+		for(int i = 0; i < map.width; i++) {
+			for (int j = 0; j < map.height; j++) {
+				blur.sprite.setPosition((i * step) + (mapX*step), (j * step) + (mapY*step));
+				blur.sprite.draw(batch);
+			}
+		}
+
+		Sprite sprite = textAtlas.createSprite("text_inventory");
+		inventory.act(Math.min(Gdx.graphics.getDeltaTime(), 1 / 30f));
+		inventory.draw();
+		sprite.setPosition(100, 600);
+		sprite.draw(batch);
+	}
+
 	public void createUI(){
-		stage = new Stage();
-		Gdx.input.setInputProcessor(stage);
+		menu = new Stage();
+		Gdx.input.setInputProcessor(menu);
 
 		// A skin can be loaded via JSON or defined programmatically, either is fine. Using a skin is optional but strongly
 		// recommended solely for the convenience of getting a texture, region, etc as a drawable, tinted drawable, etc.
-		skin = new Skin();
+		Skin skin = new Skin();
 
 		// Generate a 1x1 white texture and store it in the skin named "white".
 		Pixmap pixmap = new Pixmap(1, 1, Pixmap.Format.RGBA8888);
@@ -193,7 +230,7 @@ public class MyGdxGame extends ApplicationAdapter {
 		// Create a table that fills the screen. Everything else will go inside this table.
 		Table table = new Table();
 		table.setFillParent(true);
-		stage.addActor(table);
+		menu.addActor(table);
 
 		// Create a button with the "default" TextButtonStyle. A 3rd parameter can be used to specify a name other than "default".
 		final TextButton button = new TextButton("Start Game", skin);
@@ -212,6 +249,62 @@ public class MyGdxGame extends ApplicationAdapter {
 		});
 	}
 
+	public void createInventory(){
+		inventory = new Stage();
+		Skin skinInventory = new Skin();
+		Skin labelSkin = new Skin();
+
+		Pixmap pixmap = new Pixmap(1, 1, Pixmap.Format.RGBA8888);
+		pixmap.setColor(Color.WHITE);
+		pixmap.fill();
+		skinInventory.add("white", new Texture(pixmap));
+		skinInventory.add("default", new BitmapFont());
+
+		// Configure a TextButtonStyle and name it "default". Skin resources are stored by type, so this doesn't overwrite the font.
+		TextButton.TextButtonStyle textButtonStyle = new TextButton.TextButtonStyle();
+		textButtonStyle.up = skinInventory.newDrawable("white", Color.DARK_GRAY);
+		textButtonStyle.down = skinInventory.newDrawable("white", Color.DARK_GRAY);
+		textButtonStyle.checked = skinInventory.newDrawable("white", Color.BLUE);
+		textButtonStyle.over = skinInventory.newDrawable("white", Color.LIGHT_GRAY);
+		textButtonStyle.font = skinInventory.getFont("default");
+		skinInventory.add("default", textButtonStyle);
+
+		// Create a table that fills the screen. Everything else will go inside this table.
+		Table table = new Table();
+		VerticalGroup verticalGroup = new VerticalGroup();
+		table.setFillParent(true);
+		verticalGroup.setFillParent(true);
+		inventory.addActor(table);
+		inventory.addActor(verticalGroup);
+
+		// Create a button with the "default" TextButtonStyle. A 3rd parameter can be used to specify a name other than "default".
+		final TextButton button = new TextButton("Close Inventory", skinInventory);
+		final Label label = new Label("Close Inventory", new Label.LabelStyle(new BitmapFont(), new Color(1, 1, 1, 1)));
+
+		table.add(button);
+		table.add(label);
+
+		verticalGroup.addActor(new Label("Close Inventory", new Label.LabelStyle(new BitmapFont(), new Color(1, 1, 1, 1))));
+		verticalGroup.addActor(new Label("Close Inventory", new Label.LabelStyle(new BitmapFont(), new Color(1, 1, 1, 1))));
+		verticalGroup.addActor(new Label("Close Inventory", new Label.LabelStyle(new BitmapFont(), new Color(1, 1, 1, 1))));
+		verticalGroup.addActor(new Label("Close Inventory", new Label.LabelStyle(new BitmapFont(), new Color(1, 1, 1, 1))));
+		verticalGroup.addActor(new Label("Close Inventory", new Label.LabelStyle(new BitmapFont(), new Color(1, 1, 1, 1))));
+		verticalGroup.addActor(new Label("Close Inventory", new Label.LabelStyle(new BitmapFont(), new Color(1, 1, 1, 1))));
+
+//		table.add(new TextField(" This is your inventory ", new TextField.TextFieldStyle(
+//				new BitmapFont(), new Color(1, 1, 1, 1), new Drawable() {
+//		})));
+
+		//inventory.addActor(label);
+		button.addListener(new ChangeListener() {
+			public void changed (ChangeEvent event, Actor actor) {
+				System.out.println("Clicked! Is checked: " + button.isChecked());
+				loadInventory = true;
+				button.setText("Good job!");
+			}
+		});
+	}
+
 	int mapX = 0;
 	int mapY = 0;
 	int step = 32;
@@ -223,9 +316,11 @@ public class MyGdxGame extends ApplicationAdapter {
 	Map basicMap;
 	TextureAtlas textureAtlas;
 	TextureAtlas waterAtlas;
+	TextureAtlas textAtlas;
 	float stateTime;
-	Skin skin;
-	Stage stage;
+	Stage menu;
+	Stage inventory;
+
 	long millisDrag = 150;
 	long startTime = System.currentTimeMillis();
 	long tickTime = System.currentTimeMillis();

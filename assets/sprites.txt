@@ -1,109 +1,116 @@
 sprites.png
-size: 32, 544
+size: 32, 576
 format: RGBA8888
 filter: Linear,Linear
 repeat: none
-dirt
+blur
   rotate: false
   xy: 0, 0
   size: 32, 32
   orig: 32, 32
   offset: 0, 0
   index: -1
-door
+dirt
   rotate: false
   xy: 0, 32
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: -1
+door
+  rotate: false
+  xy: 0, 64
   size: 32, 64
   orig: 32, 64
   offset: 0, 0
   index: -1
 doorMat
   rotate: false
-  xy: 0, 96
+  xy: 0, 128
   size: 32, 32
   orig: 32, 32
   offset: 0, 0
   index: -1
 doorOpen
   rotate: false
-  xy: 0, 128
+  xy: 0, 160
   size: 32, 64
   orig: 32, 64
   offset: 0, 0
   index: -1
 empty
   rotate: false
-  xy: 0, 192
+  xy: 0, 224
   size: 32, 32
   orig: 32, 32
   offset: 0, 0
   index: -1
 grass
   rotate: false
-  xy: 0, 224
+  xy: 0, 256
   size: 32, 32
   orig: 32, 32
   offset: 0, 0
   index: -1
 grass_rock
   rotate: false
-  xy: 0, 256
+  xy: 0, 288
   size: 32, 32
   orig: 32, 32
   offset: 0, 0
   index: -1
 grass_roses
   rotate: false
-  xy: 0, 288
+  xy: 0, 320
   size: 32, 32
   orig: 32, 32
   offset: 0, 0
   index: -1
 grass_three_sunflower
   rotate: false
-  xy: 0, 320
+  xy: 0, 352
   size: 32, 32
   orig: 32, 32
   offset: 0, 0
   index: -1
 grass_two_sunflower
   rotate: false
-  xy: 0, 352
+  xy: 0, 384
   size: 32, 32
   orig: 32, 32
   offset: 0, 0
   index: -1
 log
   rotate: false
-  xy: 0, 384
+  xy: 0, 416
   size: 32, 32
   orig: 32, 32
   offset: 0, 0
   index: -1
 logRoof
   rotate: false
-  xy: 0, 416
+  xy: 0, 448
   size: 32, 32
   orig: 32, 32
   offset: 0, 0
   index: -1
 sand
   rotate: false
-  xy: 0, 448
+  xy: 0, 480
   size: 32, 32
   orig: 32, 32
   offset: 0, 0
   index: -1
 sandOceanEdge
   rotate: false
-  xy: 0, 480
+  xy: 0, 512
   size: 32, 32
   orig: 32, 32
   offset: 0, 0
   index: -1
 water
   rotate: false
-  xy: 0, 512
+  xy: 0, 544
   size: 32, 32
   orig: 32, 32
   offset: 0, 0
