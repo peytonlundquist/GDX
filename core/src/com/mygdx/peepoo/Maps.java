@@ -11,7 +11,7 @@ public class Maps {
 
 
         int oceanBorderSize = 10;
-        int beachBorderSize = 5;
+        int beachBorderSize = 7;
         int size = 50;
         Map map = new Map(size, size);
         Random random = new Random();
@@ -109,6 +109,7 @@ public class Maps {
                 }
             }
         }
+        map.tiles[x + 8][y + 3] = new Chest(textureAtlas);
         map.tiles[x + 4][y - 1] = new DoorMat(outside, textureAtlas);
         return map;
     }

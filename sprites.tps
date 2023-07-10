@@ -212,6 +212,7 @@
             </struct>
             <key type="filename">assets/tiles/logRoof.png</key>
             <key type="filename">raw-assets/blur.png</key>
+            <key type="filename">raw-assets/chest.png</key>
             <key type="filename">raw-assets/doorMat.png</key>
             <key type="filename">raw-assets/grass_rock.png</key>
             <key type="filename">raw-assets/grass_roses.png</key>
@@ -254,6 +255,7 @@
                     <filename>raw-assets/doorMat.png</filename>
                     <filename>assets/tiles/logRoof.png</filename>
                     <filename>raw-assets/blur.png</filename>
+                    <filename>raw-assets/chest.png</filename>
                 </array>
             </struct>
         </map>

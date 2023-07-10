@@ -5,21 +5,37 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.*;
 import com.badlogic.gdx.graphics.g2d.*;
-import com.badlogic.gdx.scenes.scene2d.Actor;
+import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
 import com.badlogic.gdx.scenes.scene2d.Stage;
-import com.badlogic.gdx.scenes.scene2d.ui.*;
-import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
-import com.badlogic.gdx.scenes.scene2d.utils.Drawable;
-import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.utils.ScreenUtils;
+import com.mygdx.peepoo.items.Item;
+import com.mygdx.peepoo.items.Weapon;
+import com.mygdx.peepoo.player.Inventory;
+import com.mygdx.peepoo.player.Player;
 import com.mygdx.peepoo.tiles.Blur;
 import com.mygdx.peepoo.tiles.Door;
 import com.mygdx.peepoo.tiles.DoorMat;
+import com.mygdx.peepoo.items.weapons.Dagger;
+import com.mygdx.peepoo.items.weapons.Sword;
 
 public class MyGdxGame extends ApplicationAdapter {
 
 	@Override
 	public void create () {
+
+		step = 32;
+
+		/* Default Spawn */
+		mapX = -2;
+		mapY = -2;
+		playerX = 12;
+		playerY = 12;
+
+		inventory = new Inventory();
+		inventory.getWeapons().add(new Sword());
+		//inventory.getWeapons().add(new GreatSword());
+		inventory.getWeapons().add(new Dagger());
+
 		batch = new SpriteBatch();
 		waterAtlas = new TextureAtlas("water.txt");
 		textureAtlas = new TextureAtlas("sprites.txt");
@@ -27,8 +43,7 @@ public class MyGdxGame extends ApplicationAdapter {
 		stateTime = 0f;
 
 		/* Create UI */
-		createInventory();
-		createUI();
+
 
 
 		/* Make player */
@@ -38,7 +53,7 @@ public class MyGdxGame extends ApplicationAdapter {
 				new Texture("player/pumkinBack.png"));
 		player.setX(320);
 		player.setY(337);
-		player.setCurrentTexture(player.getFrontFacing());
+		player.setFace(Player.Face.Back);
 
 //		680, 714
 		//20, 21,
@@ -93,6 +108,7 @@ public class MyGdxGame extends ApplicationAdapter {
 		}
 
 		boolean keyI = Gdx.input.isKeyJustPressed(Input.Keys.I);
+		boolean keyE = Gdx.input.isKeyJustPressed(Input.Keys.E);
 
 
 		/* Get Input */
@@ -109,7 +125,7 @@ public class MyGdxGame extends ApplicationAdapter {
 		/* Player Movement*/
 		if((keyAPressed && millisDrag + startTime < endTime) || keyA){
 			startTime = System.currentTimeMillis();
-			player.setCurrentTexture(player.getLeftFacing());
+			player.setFace(Player.Face.Left);
 			if(map.tiles[playerX - 1][playerY].getWalkable()){
 				mapX = mapX + 1;
 				playerX--;
@@ -118,7 +134,7 @@ public class MyGdxGame extends ApplicationAdapter {
 			}
 		} else if ((keyWPressed && millisDrag + startTime < endTime) || keyW){
 			startTime = System.currentTimeMillis();
-			player.setCurrentTexture(player.getBackFacing());
+			player.setFace(Player.Face.Back);
 			if(map.tiles[playerX][playerY + 1].getWalkable()) {
 				if(map.tiles[playerX][playerY + 1].toString().equals("Door")){
 					Door door = (Door) map.tiles[playerX][playerY + 1];
@@ -130,7 +146,7 @@ public class MyGdxGame extends ApplicationAdapter {
 			}
 		} else if ((keySPressed && millisDrag + startTime < endTime) || keyS){
 			startTime = System.currentTimeMillis();
-			player.setCurrentTexture(player.getFrontFacing());
+			player.setFace(Player.Face.Front);
 			if(map.tiles[playerX][playerY - 1].getWalkable()) {
 				if(map.tiles[playerX][playerY - 1].toString().equals("doorMat")){
 					DoorMat doorMat = (DoorMat) map.tiles[playerX][playerY - 1];
@@ -142,7 +158,7 @@ public class MyGdxGame extends ApplicationAdapter {
 			}
 		} else if ((keyDPressed && millisDrag + startTime < endTime) || keyD){
 			startTime = System.currentTimeMillis();
-			player.setCurrentTexture(player.getRightFacing());
+			player.setFace(Player.Face.Right);
 			if(map.tiles[playerX + 1][playerY].getWalkable()) {
 				mapX = mapX - 1;
 				playerX++;
@@ -150,9 +166,22 @@ public class MyGdxGame extends ApplicationAdapter {
 			}
 		}
 
+		if(keyE){
+			if(player.getCurrentFace().name().equals("Right")){
+				Item item = map.tiles[playerX + 1][playerY].interact();
+				if(item != null){
+					System.out.println(item.getClass().getSuperclass().getSimpleName());
+					if(item.getClass().getSuperclass().getSimpleName().equals("Weapon")){
+						inventory.getWeapons().add((Weapon) item);
+						System.out.println("Item added");
+					}
+				}
+			}
+		}
+
 		if(keyI && loadInventory == false){
 			loadInventory = true;
-		}else if (keyI && loadInventory == true){
+		}else if (keyI && loadInventory){
 			loadInventory = false;
 		}
 		//rayHandler.updateAndRender();
@@ -176,12 +205,24 @@ public class MyGdxGame extends ApplicationAdapter {
 	}
 
 	public void renderUI(){
-		Gdx.input.setInputProcessor(menu);
-		menu.act(Math.min(Gdx.graphics.getDeltaTime(), 1 / 30f));
-		menu.draw();
-		Sprite sprite = new Sprite(new Texture("player/pumkinFront.png"));
-		sprite.setPosition(400, 400);
-		sprite.draw(batch);
+		Sprite icon = new Sprite(new Texture("player/pumkinFront.png"));
+		icon.setPosition(220, 400);
+		icon.draw(batch);
+
+		FreeTypeFontGenerator generator = new FreeTypeFontGenerator(Gdx.files.internal("raw-assets/slkscr.ttf"));
+		FreeTypeFontGenerator.FreeTypeFontParameter smallParameter = new FreeTypeFontGenerator.FreeTypeFontParameter();
+		FreeTypeFontGenerator.FreeTypeFontParameter largeParameter = new FreeTypeFontGenerator.FreeTypeFontParameter();
+		largeParameter.size = 48;
+		smallParameter.size = 24;
+		BitmapFont font48 = generator.generateFont(largeParameter); // font size 12 pixels
+		BitmapFont font24 = generator.generateFont(smallParameter); // font size 12 pixels
+		font48.draw(batch, "Start Game", 100, 200);
+		font24.draw(batch, "Press Enter or Space Key to continue", 20, 150);
+
+		boolean keyEnter = Gdx.input.isKeyJustPressed(Input.Keys.ENTER);
+		boolean keySpace = Gdx.input.isKeyJustPressed(Input.Keys.SPACE);
+
+		if(keyEnter || keySpace) beginGame = true;
 	}
 
 	public void renderInventory(){
@@ -194,133 +235,41 @@ public class MyGdxGame extends ApplicationAdapter {
 			}
 		}
 
-		Sprite sprite = textAtlas.createSprite("text_inventory");
-		inventory.act(Math.min(Gdx.graphics.getDeltaTime(), 1 / 30f));
-		inventory.draw();
-		sprite.setPosition(100, 600);
-		sprite.draw(batch);
+		FreeTypeFontGenerator generator = new FreeTypeFontGenerator(Gdx.files.internal("raw-assets/slkscr.ttf"));
+		FreeTypeFontGenerator.FreeTypeFontParameter smallParameter = new FreeTypeFontGenerator.FreeTypeFontParameter();
+		FreeTypeFontGenerator.FreeTypeFontParameter largeParameter = new FreeTypeFontGenerator.FreeTypeFontParameter();
+		largeParameter.size = 64;
+		smallParameter.size = 32;
+		BitmapFont font64 = generator.generateFont(largeParameter); // font size 12 pixels
+		BitmapFont font32 = generator.generateFont(smallParameter); // font size 12 pixels
+		font64.draw(batch, "Inventory", 100, 600);
+
+		font32.draw(batch, "Weapons", 20, 500);
+
+
+		for(int i = 0; i < inventory.getWeapons().size(); i++){
+			font32.draw(batch, inventory.getWeapons().get(i).toString(), 100, 500 - (32 * (i+1)));
+		}
+
+
+		font32.draw(batch, "Items", 20, 340);
+
+
+		generator.dispose(); // don't forget to dispose to avoid memory leaks!
+
+
 	}
 
-	public void createUI(){
-		menu = new Stage();
-		Gdx.input.setInputProcessor(menu);
 
-		// A skin can be loaded via JSON or defined programmatically, either is fine. Using a skin is optional but strongly
-		// recommended solely for the convenience of getting a texture, region, etc as a drawable, tinted drawable, etc.
-		Skin skin = new Skin();
-
-		// Generate a 1x1 white texture and store it in the skin named "white".
-		Pixmap pixmap = new Pixmap(1, 1, Pixmap.Format.RGBA8888);
-		pixmap.setColor(Color.WHITE);
-		pixmap.fill();
-		skin.add("white", new Texture(pixmap));
-
-		// Store the default libGDX font under the name "default".
-		skin.add("default", new BitmapFont());
-
-		// Configure a TextButtonStyle and name it "default". Skin resources are stored by type, so this doesn't overwrite the font.
-		TextButton.TextButtonStyle textButtonStyle = new TextButton.TextButtonStyle();
-		textButtonStyle.up = skin.newDrawable("white", Color.DARK_GRAY);
-		textButtonStyle.down = skin.newDrawable("white", Color.DARK_GRAY);
-		textButtonStyle.checked = skin.newDrawable("white", Color.BLUE);
-		textButtonStyle.over = skin.newDrawable("white", Color.LIGHT_GRAY);
-		textButtonStyle.font = skin.getFont("default");
-		skin.add("default", textButtonStyle);
-
-		// Create a table that fills the screen. Everything else will go inside this table.
-		Table table = new Table();
-		table.setFillParent(true);
-		menu.addActor(table);
-
-		// Create a button with the "default" TextButtonStyle. A 3rd parameter can be used to specify a name other than "default".
-		final TextButton button = new TextButton("Start Game", skin);
-		table.add(button);
-
-		// Add a listener to the button. ChangeListener is fired when the button's checked state changes, eg when clicked,
-		// Button#setChecked() is called, via a key press, etc. If the event.cancel() is called, the checked state will be reverted.
-		// ClickListener could have been used, but would only fire when clicked. Also, canceling a ClickListener event won't
-		// revert the checked state.
-		button.addListener(new ChangeListener() {
-			public void changed (ChangeEvent event, Actor actor) {
-				System.out.println("Clicked! Is checked: " + button.isChecked());
-				beginGame = true;
-				button.setText("Good job!");
-			}
-		});
-	}
-
-	public void createInventory(){
-		inventory = new Stage();
-		Skin skinInventory = new Skin();
-		Skin labelSkin = new Skin();
-
-		Pixmap pixmap = new Pixmap(1, 1, Pixmap.Format.RGBA8888);
-		pixmap.setColor(Color.WHITE);
-		pixmap.fill();
-		skinInventory.add("white", new Texture(pixmap));
-		skinInventory.add("default", new BitmapFont());
-
-		// Configure a TextButtonStyle and name it "default". Skin resources are stored by type, so this doesn't overwrite the font.
-		TextButton.TextButtonStyle textButtonStyle = new TextButton.TextButtonStyle();
-		textButtonStyle.up = skinInventory.newDrawable("white", Color.DARK_GRAY);
-		textButtonStyle.down = skinInventory.newDrawable("white", Color.DARK_GRAY);
-		textButtonStyle.checked = skinInventory.newDrawable("white", Color.BLUE);
-		textButtonStyle.over = skinInventory.newDrawable("white", Color.LIGHT_GRAY);
-		textButtonStyle.font = skinInventory.getFont("default");
-		skinInventory.add("default", textButtonStyle);
-
-		// Create a table that fills the screen. Everything else will go inside this table.
-		Table table = new Table();
-		VerticalGroup verticalGroup = new VerticalGroup();
-		table.setFillParent(true);
-		verticalGroup.setFillParent(true);
-		inventory.addActor(table);
-		inventory.addActor(verticalGroup);
-
-		// Create a button with the "default" TextButtonStyle. A 3rd parameter can be used to specify a name other than "default".
-		final TextButton button = new TextButton("Close Inventory", skinInventory);
-		final Label label = new Label("Close Inventory", new Label.LabelStyle(new BitmapFont(), new Color(1, 1, 1, 1)));
-
-		table.add(button);
-		table.add(label);
-
-		verticalGroup.addActor(new Label("Close Inventory", new Label.LabelStyle(new BitmapFont(), new Color(1, 1, 1, 1))));
-		verticalGroup.addActor(new Label("Close Inventory", new Label.LabelStyle(new BitmapFont(), new Color(1, 1, 1, 1))));
-		verticalGroup.addActor(new Label("Close Inventory", new Label.LabelStyle(new BitmapFont(), new Color(1, 1, 1, 1))));
-		verticalGroup.addActor(new Label("Close Inventory", new Label.LabelStyle(new BitmapFont(), new Color(1, 1, 1, 1))));
-		verticalGroup.addActor(new Label("Close Inventory", new Label.LabelStyle(new BitmapFont(), new Color(1, 1, 1, 1))));
-		verticalGroup.addActor(new Label("Close Inventory", new Label.LabelStyle(new BitmapFont(), new Color(1, 1, 1, 1))));
-
-//		table.add(new TextField(" This is your inventory ", new TextField.TextFieldStyle(
-//				new BitmapFont(), new Color(1, 1, 1, 1), new Drawable() {
-//		})));
-
-		//inventory.addActor(label);
-		button.addListener(new ChangeListener() {
-			public void changed (ChangeEvent event, Actor actor) {
-				System.out.println("Clicked! Is checked: " + button.isChecked());
-				loadInventory = true;
-				button.setText("Good job!");
-			}
-		});
-	}
-
-	int mapX = 0;
-	int mapY = 0;
-	int step = 32;
-	int playerX = 10;
-	int playerY = 10;
+	int mapX, mapY, step, playerX, playerY;
 	SpriteBatch batch;
 	Player player;
 	Map map;
 	Map basicMap;
-	TextureAtlas textureAtlas;
-	TextureAtlas waterAtlas;
-	TextureAtlas textAtlas;
+	TextureAtlas textureAtlas, waterAtlas, textAtlas;
 	float stateTime;
 	Stage menu;
-	Stage inventory;
-
+	Inventory inventory;
 	long millisDrag = 150;
 	long startTime = System.currentTimeMillis();
 	long tickTime = System.currentTimeMillis();

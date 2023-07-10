@@ -5,6 +5,7 @@ import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.mygdx.peepoo.items.Item;
 
 import java.util.Iterator;
 
@@ -14,6 +15,11 @@ public abstract class Tile {
 
     protected Sprite sprite;
     protected Boolean walkable;
+    protected Boolean interactable;
+
+    public Item interact(){
+        return null;
+    }
 
     public Animation<TextureRegion> getAnimation() {
         return animation;
