@@ -63,8 +63,22 @@ public class MyGdxGame extends ApplicationAdapter {
 		map = basicMap;
 		player.setCurrentTile(map.tiles[playerX][playerY]);
 		System.out.println(player.getCurrentTile().toString());
+
+		FreeTypeFontGenerator generator = new FreeTypeFontGenerator(Gdx.files.internal("raw-assets/slkscr.ttf"));
+		FreeTypeFontGenerator.FreeTypeFontParameter smallParameter = new FreeTypeFontGenerator.FreeTypeFontParameter();
+		FreeTypeFontGenerator.FreeTypeFontParameter largeParameter = new FreeTypeFontGenerator.FreeTypeFontParameter();
+		largeParameter.size = 64;
+		smallParameter.size = 32;
+		font64 = generator.generateFont(largeParameter); // font size 12 pixels
+		font32 = generator.generateFont(smallParameter); // font size 12 pixels
+		largeParameter.size = 48;
+		smallParameter.size = 24;
+		font48 = generator.generateFont(largeParameter); // font size 12 pixels
+		font24 = generator.generateFont(smallParameter); // font size 12 pixels
+		generator.dispose(); // don't forget to dispose to avoid memory leaks!
 	}
 
+	BitmapFont font24, font32, font48, font64;
 	boolean beginGame = false;
 	boolean loadInventory = false;
 
@@ -209,13 +223,7 @@ public class MyGdxGame extends ApplicationAdapter {
 		icon.setPosition(220, 400);
 		icon.draw(batch);
 
-		FreeTypeFontGenerator generator = new FreeTypeFontGenerator(Gdx.files.internal("raw-assets/slkscr.ttf"));
-		FreeTypeFontGenerator.FreeTypeFontParameter smallParameter = new FreeTypeFontGenerator.FreeTypeFontParameter();
-		FreeTypeFontGenerator.FreeTypeFontParameter largeParameter = new FreeTypeFontGenerator.FreeTypeFontParameter();
-		largeParameter.size = 48;
-		smallParameter.size = 24;
-		BitmapFont font48 = generator.generateFont(largeParameter); // font size 12 pixels
-		BitmapFont font24 = generator.generateFont(smallParameter); // font size 12 pixels
+
 		font48.draw(batch, "Start Game", 100, 200);
 		font24.draw(batch, "Press Enter or Space Key to continue", 20, 150);
 
@@ -235,29 +243,14 @@ public class MyGdxGame extends ApplicationAdapter {
 			}
 		}
 
-		FreeTypeFontGenerator generator = new FreeTypeFontGenerator(Gdx.files.internal("raw-assets/slkscr.ttf"));
-		FreeTypeFontGenerator.FreeTypeFontParameter smallParameter = new FreeTypeFontGenerator.FreeTypeFontParameter();
-		FreeTypeFontGenerator.FreeTypeFontParameter largeParameter = new FreeTypeFontGenerator.FreeTypeFontParameter();
-		largeParameter.size = 64;
-		smallParameter.size = 32;
-		BitmapFont font64 = generator.generateFont(largeParameter); // font size 12 pixels
-		BitmapFont font32 = generator.generateFont(smallParameter); // font size 12 pixels
 		font64.draw(batch, "Inventory", 100, 600);
-
 		font32.draw(batch, "Weapons", 20, 500);
-
 
 		for(int i = 0; i < inventory.getWeapons().size(); i++){
 			font32.draw(batch, inventory.getWeapons().get(i).toString(), 100, 500 - (32 * (i+1)));
 		}
 
-
 		font32.draw(batch, "Items", 20, 340);
-
-
-		generator.dispose(); // don't forget to dispose to avoid memory leaks!
-
-
 	}
 
 
