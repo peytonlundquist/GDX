@@ -1,8 +1,11 @@
 package com.mygdx.peepoo;
 
 import com.badlogic.gdx.ApplicationAdapter;
+import com.badlogic.gdx.Audio;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
+import com.badlogic.gdx.audio.Music;
+import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.*;
 import com.badlogic.gdx.graphics.g2d.*;
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
@@ -10,18 +13,25 @@ import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.utils.ScreenUtils;
 import com.mygdx.peepoo.items.Item;
 import com.mygdx.peepoo.items.Weapon;
+import com.mygdx.peepoo.npc.BinaryTree;
 import com.mygdx.peepoo.player.Inventory;
 import com.mygdx.peepoo.player.Player;
 import com.mygdx.peepoo.tiles.Blur;
+import com.mygdx.peepoo.tiles.Chest;
 import com.mygdx.peepoo.tiles.Door;
 import com.mygdx.peepoo.tiles.DoorMat;
-import com.mygdx.peepoo.items.weapons.Dagger;
-import com.mygdx.peepoo.items.weapons.Sword;
 
 public class MyGdxGame extends ApplicationAdapter {
 
+	Music music;
+
 	@Override
 	public void create () {
+		Audio audio = Gdx.audio;
+
+		music = audio.newMusic(new FileHandle("raw-assets/song.mp3"));
+		music.setVolume(0.0F);
+		music.play();
 
 		step = 32;
 
@@ -32,15 +42,18 @@ public class MyGdxGame extends ApplicationAdapter {
 		playerY = 12;
 
 		inventory = new Inventory();
-		inventory.getWeapons().add(new Sword());
+//		inventory.getWeapons().add(new Sword());
 		//inventory.getWeapons().add(new GreatSword());
-		inventory.getWeapons().add(new Dagger());
+//		inventory.getWeapons().add(new Dagger());
 
 		batch = new SpriteBatch();
 		waterAtlas = new TextureAtlas("water.txt");
 		textureAtlas = new TextureAtlas("sprites.txt");
 		textAtlas = new TextureAtlas("text.txt");
 		stateTime = 0f;
+
+		messageBox = textAtlas.createSprite("messageBox");
+		messageBox.setPosition(60, 40);
 
 		/* Create UI */
 
@@ -51,8 +64,8 @@ public class MyGdxGame extends ApplicationAdapter {
 				new Texture("player/pumkinLeft.png"),
 				new Texture("player/pumkinFront.png"),
 				new Texture("player/pumkinBack.png"));
-		player.setX(320);
-		player.setY(337);
+		player.setX(310);
+		player.setY(327);
 		player.setFace(Player.Face.Back);
 
 //		680, 714
@@ -110,11 +123,14 @@ public class MyGdxGame extends ApplicationAdapter {
 		menu.dispose();
 	}
 
+
+	String messageString = null;
+
 	public void renderGame(){
+
 		long endTime = System.currentTimeMillis();
 
 		if(tickGoal + tickTime < endTime){
-			//System.out.println("tick");
 			renderMap(map);
 			tickTime = System.currentTimeMillis();
 		}else{
@@ -182,13 +198,28 @@ public class MyGdxGame extends ApplicationAdapter {
 
 		if(keyE){
 			if(player.getCurrentFace().name().equals("Right")){
-				Item item = map.tiles[playerX + 1][playerY].interact();
-				if(item != null){
-					System.out.println(item.getClass().getSuperclass().getSimpleName());
-					if(item.getClass().getSuperclass().getSimpleName().equals("Weapon")){
-						inventory.getWeapons().add((Weapon) item);
-						System.out.println("Item added");
+				if(map.tiles[playerX + 1][playerY].toString().equals("chest")){
+					System.out.println("Is chest");
+
+					Chest chest  = (Chest) map.tiles[playerX + 1][playerY];
+
+					if(!chest.isOpened()){
+						System.out.println("Unopened");
+						Item item = chest.interact();
+
+						System.out.println(item.getClass().getSuperclass().getSimpleName());
+						if(item.getClass().getSuperclass().getSimpleName().equals("Weapon")){
+							inventory.getWeapons().add((Weapon) item);
+							System.out.println("Item added");
+						}
+						messageString = "You opened the chest and received: " + item.toString();
+					}else{
+						messageString = "The chest is empty";
 					}
+				}
+				if(map.tiles[playerX + 1][playerY].toString().equals("chest")) {
+
+
 				}
 			}
 		}
@@ -198,10 +229,17 @@ public class MyGdxGame extends ApplicationAdapter {
 		}else if (keyI && loadInventory){
 			loadInventory = false;
 		}
-		//rayHandler.updateAndRender();
+
 
 		batch.draw(player.getCurrentTexture(), player.getX(), player.getY());
 		stateTime += Gdx.graphics.getDeltaTime(); // Accumulate elapsed animation time
+
+		renderMessage(messageString);
+		boolean keySpace = Gdx.input.isKeyJustPressed(Input.Keys.SPACE);
+
+		if(keySpace) messageString = null;
+
+
 	}
 
 	private void renderMap(Map map){
@@ -218,19 +256,39 @@ public class MyGdxGame extends ApplicationAdapter {
 		}
 	}
 
+
 	public void renderUI(){
 		Sprite icon = new Sprite(new Texture("player/pumkinFront.png"));
-		icon.setPosition(220, 400);
+		icon.setPosition(280, 400);
 		icon.draw(batch);
 
 
-		font48.draw(batch, "Start Game", 100, 200);
-		font24.draw(batch, "Press Enter or Space Key to continue", 20, 150);
+		font48.draw(batch, "Start Game", 160, 200);
+		font24.draw(batch, "Press Enter or Space Key to continue", 60, 150);
 
 		boolean keyEnter = Gdx.input.isKeyJustPressed(Input.Keys.ENTER);
 		boolean keySpace = Gdx.input.isKeyJustPressed(Input.Keys.SPACE);
+		boolean keyA = Gdx.input.isKeyJustPressed(Input.Keys.A);
+		boolean keyD = Gdx.input.isKeyJustPressed(Input.Keys.D);
 
 		if(keyEnter || keySpace) beginGame = true;
+
+
+		font24.draw(batch, String.valueOf(music.getVolume()).substring(0, 3), 260, 30);
+
+
+		if(keyA){
+			if(music.getVolume() - 0.1f >= 0.0f){
+				music.setVolume(music.getVolume() - 0.1f);
+			}
+		}
+
+		if(keyD){
+			if(music.getVolume() + 0.1f <= 1.0f){
+				music.setVolume(music.getVolume() + 0.1f);
+			}
+		}
+
 	}
 
 	public void renderInventory(){
@@ -253,7 +311,40 @@ public class MyGdxGame extends ApplicationAdapter {
 		font32.draw(batch, "Items", 20, 340);
 	}
 
+	public void renderMessage(String string){
+		if(string == null) return;
 
+		int wrapSize = 24;
+
+		messageBox.draw(batch);
+
+		if(string.length() > 24){
+			font32.draw(batch, string.substring(0, wrapSize), 70, 164);
+			font32.draw(batch, string.substring(wrapSize, string.length()), 70, 130);
+		}else{
+			font32.draw(batch, string, 70, 164);
+		}
+	}
+
+	public void renderDialogue(BinaryTree.Node node){
+		if(node == null) return;
+
+		int wrapSize = 24;
+
+		messageBox.draw(batch);
+
+		if(node.message.length() > 24){
+			font32.draw(batch, node.message.substring(0, wrapSize), 70, 164);
+			font32.draw(batch, node.message.substring(wrapSize), 70, 130);
+		}else{
+			font32.draw(batch, node.message, 70, 164);
+		}
+
+		font32.draw(batch, node.leftResponse.substring(0, wrapSize), 70, 110);
+		font32.draw(batch, node.rightResponse.substring(0, wrapSize), 120, 110);
+	}
+
+	Sprite messageBox;
 	int mapX, mapY, step, playerX, playerY;
 	SpriteBatch batch;
 	Player player;

@@ -8,15 +8,25 @@ import com.mygdx.peepoo.items.weapons.GreatSword;
 
 public class Chest extends Tile {
 
-    public Chest(TextureAtlas textureAtlas){
+    boolean opened;
+    Item item;
+
+    public Chest(TextureAtlas textureAtlas, Item item){
         walkable = false;
         sprite = textureAtlas.createSprite("chest");
         interactable = true;
+        opened = false;
+        this.item = item;
     }
 
     @Override
     public Item interact() {
-        return new GreatSword();
+        opened = true;
+        return item;
+    }
+
+    public boolean isOpened() {
+        return opened;
     }
 
     @Override

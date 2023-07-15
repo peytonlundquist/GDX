@@ -1,6 +1,8 @@
 package com.mygdx.peepoo;
 
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
+import com.mygdx.peepoo.items.weapons.Dagger;
+import com.mygdx.peepoo.items.weapons.GreatSword;
 import com.mygdx.peepoo.tiles.*;
 
 import java.util.ArrayList;
@@ -8,7 +10,6 @@ import java.util.Random;
 
 public class Maps {
     public static Map getBasicMap(TextureAtlas textureAtlas){
-
 
         int oceanBorderSize = 10;
         int beachBorderSize = 7;
@@ -109,7 +110,9 @@ public class Maps {
                 }
             }
         }
-        map.tiles[x + 8][y + 3] = new Chest(textureAtlas);
+        map.tiles[x + 8][y + 3] = new Chest(textureAtlas, new GreatSword());
+        map.tiles[x + 8][y + 2] = new Chest(textureAtlas, new Dagger());
+
         map.tiles[x + 4][y - 1] = new DoorMat(outside, textureAtlas);
         return map;
     }
