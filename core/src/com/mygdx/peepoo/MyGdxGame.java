@@ -14,6 +14,7 @@ import com.badlogic.gdx.utils.ScreenUtils;
 import com.mygdx.peepoo.items.Item;
 import com.mygdx.peepoo.items.Weapon;
 import com.mygdx.peepoo.npc.BinaryTree;
+import com.mygdx.peepoo.npc.Npc;
 import com.mygdx.peepoo.player.Inventory;
 import com.mygdx.peepoo.player.Player;
 import com.mygdx.peepoo.tiles.Blur;
@@ -27,6 +28,7 @@ public class MyGdxGame extends ApplicationAdapter {
 
 	@Override
 	public void create () {
+		dialogueResponseX = 70;
 		Audio audio = Gdx.audio;
 
 		music = audio.newMusic(new FileHandle("raw-assets/song.mp3"));
@@ -50,13 +52,15 @@ public class MyGdxGame extends ApplicationAdapter {
 		waterAtlas = new TextureAtlas("water.txt");
 		textureAtlas = new TextureAtlas("sprites.txt");
 		textAtlas = new TextureAtlas("text.txt");
+		charAtlas = new TextureAtlas("characters.txt");
 		stateTime = 0f;
 
 		messageBox = textAtlas.createSprite("messageBox");
+		responseBox = textAtlas.createSprite("responseBox");
+
 		messageBox.setPosition(60, 40);
 
 		/* Create UI */
-
 
 
 		/* Make player */
@@ -72,7 +76,7 @@ public class MyGdxGame extends ApplicationAdapter {
 		//20, 21,
 
 		/* Make map */
-		basicMap = Maps.getBasicMap(textureAtlas);
+		basicMap = Maps.getBasicMap(textureAtlas, charAtlas);
 		map = basicMap;
 		player.setCurrentTile(map.tiles[playerX][playerY]);
 		System.out.println(player.getCurrentTile().toString());
@@ -125,9 +129,10 @@ public class MyGdxGame extends ApplicationAdapter {
 
 
 	String messageString = null;
+	BinaryTree.Node currentDialogueNode = null;
+
 
 	public void renderGame(){
-
 		long endTime = System.currentTimeMillis();
 
 		if(tickGoal + tickTime < endTime){
@@ -217,9 +222,13 @@ public class MyGdxGame extends ApplicationAdapter {
 						messageString = "The chest is empty";
 					}
 				}
-				if(map.tiles[playerX + 1][playerY].toString().equals("chest")) {
-
-
+				if(map.getNpcs().size() > 0) {
+					for(Npc npc : map.getNpcs()){
+						if(playerX + 1 == npc.getX() && playerY == npc.getY()){
+							currentDialogueNode = npc.getCurrentNode();
+							//npc.interact();
+						}
+					}
 				}
 			}
 		}
@@ -235,6 +244,8 @@ public class MyGdxGame extends ApplicationAdapter {
 		stateTime += Gdx.graphics.getDeltaTime(); // Accumulate elapsed animation time
 
 		renderMessage(messageString);
+		renderDialogue(currentDialogueNode);
+
 		boolean keySpace = Gdx.input.isKeyJustPressed(Input.Keys.SPACE);
 
 		if(keySpace) messageString = null;
@@ -251,8 +262,16 @@ public class MyGdxGame extends ApplicationAdapter {
 				}else{
 					map.tiles[i][j].sprite.setPosition((i * step) + (mapX*step), (j * step) + (mapY*step));
 					map.tiles[i][j].sprite.draw(batch);
+
+					for(Npc npc : map.getNpcs()){
+						if(i == npc.getX() && j == npc.getY()){
+							npc.getSprite().setPosition((i * step) + (mapX*step), (j * step) + (mapY*step));
+							npc.getSprite().draw(batch);
+						}
+					}
 				}
 			}
+
 		}
 	}
 
@@ -329,6 +348,11 @@ public class MyGdxGame extends ApplicationAdapter {
 	public void renderDialogue(BinaryTree.Node node){
 		if(node == null) return;
 
+		boolean keyEnter = Gdx.input.isKeyJustPressed(Input.Keys.ENTER);
+		boolean keySpace = Gdx.input.isKeyJustPressed(Input.Keys.SPACE);
+		boolean keyA = Gdx.input.isKeyJustPressed(Input.Keys.A);
+		boolean keyD = Gdx.input.isKeyJustPressed(Input.Keys.D);
+
 		int wrapSize = 24;
 
 		messageBox.draw(batch);
@@ -340,17 +364,27 @@ public class MyGdxGame extends ApplicationAdapter {
 			font32.draw(batch, node.message, 70, 164);
 		}
 
-		font32.draw(batch, node.leftResponse.substring(0, wrapSize), 70, 110);
-		font32.draw(batch, node.rightResponse.substring(0, wrapSize), 120, 110);
+		font32.draw(batch, node.leftResponse, 70, 110);
+		font32.draw(batch, node.rightResponse, 120, 110);
+
+		if(keyA) dialogueResponseX = 120;
+		if(keyD) dialogueResponseX = 70;
+
+		if(keyEnter && dialogueResponseX == 70) currentDialogueNode = currentDialogueNode.leftNode;
+		if(keyEnter && dialogueResponseX == 120) currentDialogueNode = currentDialogueNode.rightNode;
+
+
+		responseBox.setPosition(dialogueResponseX, 100);
+		responseBox.draw(batch);
 	}
 
-	Sprite messageBox;
-	int mapX, mapY, step, playerX, playerY;
+	Sprite messageBox, responseBox;
+	int mapX, mapY, step, playerX, playerY, dialogueResponseX;
 	SpriteBatch batch;
 	Player player;
 	Map map;
 	Map basicMap;
-	TextureAtlas textureAtlas, waterAtlas, textAtlas;
+	TextureAtlas textureAtlas, waterAtlas, textAtlas, charAtlas;
 	float stateTime;
 	Stage menu;
 	Inventory inventory;

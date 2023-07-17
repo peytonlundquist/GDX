@@ -3,13 +3,14 @@ package com.mygdx.peepoo;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.mygdx.peepoo.items.weapons.Dagger;
 import com.mygdx.peepoo.items.weapons.GreatSword;
+import com.mygdx.peepoo.npc.Reaper;
 import com.mygdx.peepoo.tiles.*;
 
 import java.util.ArrayList;
 import java.util.Random;
 
 public class Maps {
-    public static Map getBasicMap(TextureAtlas textureAtlas){
+    public static Map getBasicMap(TextureAtlas textureAtlas, TextureAtlas charAtlas){
 
         int oceanBorderSize = 10;
         int beachBorderSize = 7;
@@ -65,6 +66,10 @@ public class Maps {
         }
 
         addHouse(textureAtlas, 16, 16, map);
+        Reaper reaper = new Reaper(charAtlas);
+        reaper.setX(15);
+        reaper.setY(15);
+        map.getNpcs().add(reaper);
 
         return map;
     }
@@ -112,7 +117,6 @@ public class Maps {
         }
         map.tiles[x + 8][y + 3] = new Chest(textureAtlas, new GreatSword());
         map.tiles[x + 8][y + 2] = new Chest(textureAtlas, new Dagger());
-
         map.tiles[x + 4][y - 1] = new DoorMat(outside, textureAtlas);
         return map;
     }
