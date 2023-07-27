@@ -157,56 +157,71 @@ public class MyGdxGame extends ApplicationAdapter {
 		boolean keySPressed = Gdx.input.isKeyPressed(Input.Keys.S);
 		boolean keyDPressed = Gdx.input.isKeyPressed(Input.Keys.D);
 
-		/* Player Movement*/
-		if((keyAPressed && millisDrag + startTime < endTime) || keyA){
-			startTime = System.currentTimeMillis();
-			player.setFace(Player.Face.Left);
-			if(map.tiles[playerX - 1][playerY].getWalkable()){
-				mapX = mapX + 1;
-				playerX--;
-				//batch.draw(player.getRightFacing(), player.getX(), player.getY());
-				System.out.println(map.tiles[playerX][playerY]);
-			}
-		} else if ((keyWPressed && millisDrag + startTime < endTime) || keyW){
-			startTime = System.currentTimeMillis();
-			player.setFace(Player.Face.Back);
-			if(map.tiles[playerX][playerY + 1].getWalkable()) {
-				if(map.tiles[playerX][playerY + 1].toString().equals("Door")){
-					Door door = (Door) map.tiles[playerX][playerY + 1];
-					map = door.getInside();
+		if(messageString == null && currentDialogueNode == null && !loadInventory){
+			/* Player Movement*/
+			if((keyAPressed && millisDrag + startTime < endTime) || keyA){
+				startTime = System.currentTimeMillis();
+				player.setFace(Player.Face.Left);
+				if(map.tiles[playerX - 1][playerY].getWalkable()){
+					mapX = mapX + 1;
+					playerX--;
+					//batch.draw(player.getRightFacing(), player.getX(), player.getY());
+					System.out.println(map.tiles[playerX][playerY]);
 				}
-				mapY = mapY - 1;
-				playerY++;
-				System.out.println(map.tiles[playerX][playerY]);
-			}
-		} else if ((keySPressed && millisDrag + startTime < endTime) || keyS){
-			startTime = System.currentTimeMillis();
-			player.setFace(Player.Face.Front);
-			if(map.tiles[playerX][playerY - 1].getWalkable()) {
-				if(map.tiles[playerX][playerY - 1].toString().equals("doorMat")){
-					DoorMat doorMat = (DoorMat) map.tiles[playerX][playerY - 1];
-					map = doorMat.getOutside();
+			} else if ((keyWPressed && millisDrag + startTime < endTime) || keyW){
+				startTime = System.currentTimeMillis();
+				player.setFace(Player.Face.Back);
+				if(map.tiles[playerX][playerY + 1].getWalkable()) {
+					if(map.tiles[playerX][playerY + 1].toString().equals("Door")){
+						Door door = (Door) map.tiles[playerX][playerY + 1];
+						map = door.getInside();
+					}
+					mapY = mapY - 1;
+					playerY++;
+					System.out.println(map.tiles[playerX][playerY]);
 				}
-				mapY = mapY + 1;
-				playerY--;
-				System.out.println(map.tiles[playerX][playerY]);
+			} else if ((keySPressed && millisDrag + startTime < endTime) || keyS){
+				startTime = System.currentTimeMillis();
+				player.setFace(Player.Face.Front);
+				if(map.tiles[playerX][playerY - 1].getWalkable()) {
+					if(map.tiles[playerX][playerY - 1].toString().equals("doorMat")){
+						DoorMat doorMat = (DoorMat) map.tiles[playerX][playerY - 1];
+						map = doorMat.getOutside();
+					}
+					mapY = mapY + 1;
+					playerY--;
+					System.out.println(map.tiles[playerX][playerY]);
+				}
+			} else if ((keyDPressed && millisDrag + startTime < endTime) || keyD){
+				startTime = System.currentTimeMillis();
+				player.setFace(Player.Face.Right);
+				if(map.tiles[playerX + 1][playerY].getWalkable()) {
+					mapX = mapX - 1;
+					playerX++;
+					System.out.println(map.tiles[playerX][playerY]);
+				}
 			}
-		} else if ((keyDPressed && millisDrag + startTime < endTime) || keyD){
-			startTime = System.currentTimeMillis();
-			player.setFace(Player.Face.Right);
-			if(map.tiles[playerX + 1][playerY].getWalkable()) {
-				mapX = mapX - 1;
-				playerX++;
-				System.out.println(map.tiles[playerX][playerY]);
-			}
-		}
 
-		if(keyE){
-			if(player.getCurrentFace().name().equals("Right")){
-				if(map.tiles[playerX + 1][playerY].toString().equals("chest")){
+			if(keyE){
+				int[] playerFacingTile = new int[]{playerX, playerY};
+				if(player.getCurrentFace().name().equals("Right")) {
+					playerFacingTile[0] = playerX + 1;
+					playerFacingTile[1] = playerY;
+				} else if (player.getCurrentFace().name().equals("Left")) {
+					playerFacingTile[0] = playerX - 1;
+					playerFacingTile[1] = playerY;
+				} else if (player.getCurrentFace().name().equals("Front")){
+					playerFacingTile[0] = playerX;
+					playerFacingTile[1] = playerY - 1;
+				} else if (player.getCurrentFace().name().equals("Back")){
+					playerFacingTile[0] = playerX;
+					playerFacingTile[1] = playerY + 1;
+				}
+
+				if(map.tiles[playerFacingTile[0]][playerFacingTile[1]].toString().equals("chest")){
 					System.out.println("Is chest");
 
-					Chest chest  = (Chest) map.tiles[playerX + 1][playerY];
+					Chest chest  = (Chest) map.tiles[playerFacingTile[0]][playerFacingTile[1]];
 
 					if(!chest.isOpened()){
 						System.out.println("Unopened");
@@ -222,13 +237,9 @@ public class MyGdxGame extends ApplicationAdapter {
 						messageString = "The chest is empty";
 					}
 				}
-				if(map.getNpcs().size() > 0) {
-					for(Npc npc : map.getNpcs()){
-						if(playerX + 1 == npc.getX() && playerY == npc.getY()){
-							currentDialogueNode = npc.getCurrentNode();
-							//npc.interact();
-						}
-					}
+				if(map.tiles[playerFacingTile[0]][playerFacingTile[1] + 1].getNpc() != null) {
+					currentDialogueNode = map.tiles[playerFacingTile[0]][playerFacingTile[1] + 1].getNpc().getCurrentNode();
+					//npc.interact();
 				}
 			}
 		}
@@ -238,7 +249,6 @@ public class MyGdxGame extends ApplicationAdapter {
 		}else if (keyI && loadInventory){
 			loadInventory = false;
 		}
-
 
 		batch.draw(player.getCurrentTexture(), player.getX(), player.getY());
 		stateTime += Gdx.graphics.getDeltaTime(); // Accumulate elapsed animation time
@@ -253,9 +263,11 @@ public class MyGdxGame extends ApplicationAdapter {
 
 	}
 
+
 	private void renderMap(Map map){
 		for(int i = 0; i < map.width; i++){
 			for(int j = 0; j < map.height; j++){
+
 				if(map.tiles[i][j].getAnimation() != null){
 					TextureRegion currentFrame = map.tiles[i][j].getAnimation().getKeyFrame(stateTime, true);
 					batch.draw(currentFrame, (i * step) + (mapX*step), (j * step) + (mapY*step)); // Draw current frame at (50, 50)
@@ -263,15 +275,12 @@ public class MyGdxGame extends ApplicationAdapter {
 					map.tiles[i][j].sprite.setPosition((i * step) + (mapX*step), (j * step) + (mapY*step));
 					map.tiles[i][j].sprite.draw(batch);
 
-					for(Npc npc : map.getNpcs()){
-						if(i == npc.getX() && j == npc.getY()){
-							npc.getSprite().setPosition((i * step) + (mapX*step), (j * step) + (mapY*step));
-							npc.getSprite().draw(batch);
-						}
-					}
+				}
+				if((map.tiles[i][j].getNpc() != null)){
+					map.tiles[i][j].getNpc().getSprite().setPosition((i * step) + (mapX*step), ((j-1) * step) + (mapY*step));
+					map.tiles[i][j].getNpc().getSprite().draw(batch);
 				}
 			}
-
 		}
 	}
 
@@ -364,17 +373,17 @@ public class MyGdxGame extends ApplicationAdapter {
 			font32.draw(batch, node.message, 70, 164);
 		}
 
-		font32.draw(batch, node.leftResponse, 70, 110);
-		font32.draw(batch, node.rightResponse, 120, 110);
+		font32.draw(batch, node.leftResponse, 80, 110);
+		font32.draw(batch, node.rightResponse, 270, 110);
 
-		if(keyA) dialogueResponseX = 120;
-		if(keyD) dialogueResponseX = 70;
+		if(keyD) dialogueResponseX = 270;
+		if(keyA) dialogueResponseX = 70;
 
-		if(keyEnter && dialogueResponseX == 70) currentDialogueNode = currentDialogueNode.leftNode;
-		if(keyEnter && dialogueResponseX == 120) currentDialogueNode = currentDialogueNode.rightNode;
+		if((keySpace && dialogueResponseX == 70) || (keyEnter && dialogueResponseX == 70)) currentDialogueNode = currentDialogueNode.leftNode;
+		if((keySpace && dialogueResponseX == 270) || (keyEnter && dialogueResponseX == 270)) currentDialogueNode = currentDialogueNode.rightNode;
 
 
-		responseBox.setPosition(dialogueResponseX, 100);
+		responseBox.setPosition(dialogueResponseX, 50);
 		responseBox.draw(batch);
 	}
 

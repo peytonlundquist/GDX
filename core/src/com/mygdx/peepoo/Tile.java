@@ -6,7 +6,9 @@ import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.mygdx.peepoo.items.Item;
+import com.mygdx.peepoo.npc.Npc;
 
+import java.util.ArrayList;
 import java.util.Iterator;
 
 public abstract class Tile {
@@ -16,6 +18,15 @@ public abstract class Tile {
     protected Sprite sprite;
     protected Boolean walkable;
     protected Boolean interactable;
+    protected Npc npc;
+
+    public Npc getNpc(){
+        return npc;
+    }
+
+    public void setNpc(Npc npc){
+        this.npc = npc;
+    }
 
     public Item interact(){
         return null;

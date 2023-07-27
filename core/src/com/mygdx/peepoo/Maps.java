@@ -69,7 +69,9 @@ public class Maps {
         Reaper reaper = new Reaper(charAtlas);
         reaper.setX(15);
         reaper.setY(15);
-        map.getNpcs().add(reaper);
+        //map.getNpcs().add(reaper);
+        map.tiles[15][15] = new Sand(textureAtlas);
+        map.tiles[15][15].setNpc(reaper);
 
         return map;
     }
